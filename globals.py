@@ -10,10 +10,28 @@ from threading import Lock
 
 release_system = False
 mutex_print = Lock()
+uranium_mine_acess = Lock()
+oil_mine_acess = Lock()
 planets = {}
 bases = {}
 mines = {}
 simulation_time = None
+
+def acquire_uranium_mine():
+    global uranium_mine_acess
+    uranium_mine_acess.acquire()
+
+def release_uranium_mine():
+    global uranium_mine_acess
+    uranium_mine_acess.release()
+
+def acquire_oil_mine():
+    global oil_mine_acess
+    oil_mine_acess.acquire()
+
+def release_oil_mine():
+    global oil_mine_acess
+    oil_mine_acess.release()
 
 def acquire_print():
     global mutex_print
