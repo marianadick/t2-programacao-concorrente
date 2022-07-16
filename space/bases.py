@@ -1,7 +1,9 @@
 import globals
 from threading import Thread
 from space.rocket import Rocket
-from random import choice
+from random import random, choice
+
+from space.rocket_launcher import Launcher
 
 class SpaceBase(Thread):
 
@@ -22,6 +24,8 @@ class SpaceBase(Thread):
 
     def base_rocket_resources(self, rocket_name):
 
+        base_has_resource = True
+        
         if (self.name != 'MOON'):
             while (self.uranium < 35):
                 self.refuel_uranium()
@@ -42,7 +46,8 @@ class SpaceBase(Thread):
                     else:
                         self.fuel = self.fuel - 100
                 else:
-                    print("FAlhou, sem recursos")
+                    print("Falhou, sem recursos")
+                    base_has_resource = False
             case 'FALCON':
                 if self.uranium >= 35 and self.fuel >= 120:
                     self.uranium = self.uranium - 35
@@ -53,7 +58,8 @@ class SpaceBase(Thread):
                     else:
                         self.fuel = self.fuel - 120
                 else:
-                    print("FAlhou, sem recursos")
+                    print("Falhou, sem recursos")
+                    base_has_resource = False
             case 'LION':
                 if self.uranium >= 35 and self.fuel >= 100:
                     self.uranium = self.uranium - 35
@@ -62,10 +68,12 @@ class SpaceBase(Thread):
                     else:
                         self.fuel = self.fuel - 115
                 else:
-                    print("FAlhou, sem recursos")
+                    print("Falhou, sem recursos")
+                    base_has_resource = False
             case _:
                 print("Invalid rocket name")
 
+        return base_has_resource
 
     def refuel_oil(self):
         mines = globals.get_mines_ref()
@@ -95,6 +103,23 @@ class SpaceBase(Thread):
     def requeset_lion():
         bases = globals.get_bases_ref()
         
+    def get_random_planet():
+        planets = globals.get_planets_ref
+        planet = random.choice(list(planets.values()))
+        return planet
+
+    def get_random_rocket():
+        rockets = ['FALCON', 'DRAGON']
+        rocket = random.choice(rockets)
+        return rocket
+        
+    def rocket_launch(self):
+        planet = self.get_random_planet
+        rocket = self.get_random_rocket
+        base_has_resource = self.base_rocket_resources(rocket.name)
+        if base_has_resource:
+            launcher = Launcher(self, rocket, planet)
+            launcher.start()
 
     def run(self):
         globals.acquire_print()
@@ -106,4 +131,4 @@ class SpaceBase(Thread):
 
         while(True):
 
-            pass
+            self.rocket_launch()
