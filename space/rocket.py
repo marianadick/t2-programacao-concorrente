@@ -28,7 +28,9 @@ class Rocket:
             # Lock para que apenas uma bomba chegue ao polo por vez
             planet.north_pole_hit_lock.acquire()
             print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on North Pole")
-            planet.nuke_detected(damage)
+            planet.terraform_lock.acquire()
+            planet.terraform -= damage
+            planet.terraform_lock.release()
             planet.north_pole_hit_lock.release()
             
         # Bombardeio ao Polo Sul
@@ -36,9 +38,11 @@ class Rocket:
             # Lock para que apenas uma bomba chegue ao polo por vez
             planet.south_pole_hit_lock.acquire()
             print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on South Pole")
-            planet.nuke_detected(damage)
+            planet.terraform_lock.acquire()
+            planet.terraform -= damage
+            planet.terraform_lock.release()
             planet.south_pole_hit_lock.release()
-    
+
     def voyage(self, planet): # Permitida a alteração (com ressalvas)
 
         # Essa chamada de código (do_we_have_a_problem e simulation_time_voyage) não pode ser retirada.

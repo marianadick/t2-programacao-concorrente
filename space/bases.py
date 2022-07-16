@@ -3,7 +3,7 @@ from threading import Thread
 from space.rocket import Rocket
 from random import random, choice
 
-from space.rocket_launcher import Launcher
+from space.launcher import Launcher
 
 class SpaceBase(Thread):
 
@@ -109,8 +109,9 @@ class SpaceBase(Thread):
         return planet
 
     def get_random_rocket():
-        rockets = ['FALCON', 'DRAGON']
-        rocket = random.choice(rockets)
+        rocket_draw = random.randint(0, 1)
+        rockets = ['DRAGON', 'FALCON']
+        rocket = Rocket(rockets[rocket_draw])
         return rocket
         
     def rocket_launch(self):

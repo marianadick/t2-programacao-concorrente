@@ -16,18 +16,17 @@ class Planet(Thread):
         self.south_pole_hit_lock = Lock()
         
 
-    def nuke_detected(self, damage):
-        ''' Não entendi o conceito dessa função então vou deixar comentado:
+    def nuke_detected(self):
         while(self.terraform > 0):
             before_percentage = self.terraform
             while(before_percentage == self.terraform):
                 pass
-        '''
-        while (self.terraform > 0):
-            self.terraform_lock.acquire()
-            self.terraform -= damage
+
+            if self.terraform < 0:
+                self.terraform = 0
+
             print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform}% UNHABITABLE")
-            self.terraform_lock.release()
+
         # TO-DO: O que fazer quando habitável
 
     def print_planet_info(self):
