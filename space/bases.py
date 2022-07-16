@@ -86,15 +86,17 @@ class SpaceBase(Thread):
         if (self.uranium >= 35):
             self.base_has_uranium = True
 
-    def supply_lion(self, rocket):
-        while (self.fuel < 120):
+    def supply_lion(self, rocket, moon):
+        oil_needed = min((moon.constraints[1] - moon.fuel), 120)
+        uranium_needed = min((moon.constraints[0] - moon.uranium), 75)
+        while (self.fuel < oil_needed):
             self.refuel_oil()
-        while (self.uranium < 75):
+        while (self.uranium < uranium_needed):
             self.refuel_uranium()
-        rocket.fuel_cargo += 120
-        rocket.uranium_cargo += 75
-        self.fuel -= 120
-        self.uranium -= 75
+        rocket.fuel_cargo += oil_needed
+        rocket.uranium_cargo += uranium_needed
+        self.fuel -= oil_needed
+        self.uranium -= uranium_needed
 
     def get_random_planet(self):
         planets = globals.get_planets_ref()
@@ -122,8 +124,8 @@ class SpaceBase(Thread):
             self.base_rocket_resources(rocket.name)
             if (rocket.name == 'LION'):
                 bases = globals.get_bases_ref()
-                self.supply_lion(rocket)
                 planet = bases['moon']
+                self.supply_lion(rocket, planet)
             launcher = Launcher(self, rocket, planet)
             launcher.start()
             self.rockets -= 1

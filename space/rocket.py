@@ -55,8 +55,12 @@ class Rocket:
             if (failure):
                 globals.set_lion_launched(False)
             else:
-                planet.fuel += 120
-                planet.uranium += 75
+                planet.fuel += self.fuel_cargo
+                planet.uranium += self.uranium_cargo
+                if (planet.uranium >= 35):
+                    planet.base_has_uranium = True
+                if (planet.fuel >= 90):
+                    planet.base_has_oil = True
                 globals.set_lion_launched(False)
                 globals.set_lion_needed(False)
                 print(planet.fuel)
