@@ -25,7 +25,7 @@ class Planet(Thread):
             if self.terraform < 0:
                 self.terraform = 0
 
-            print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform}% UNHABITABLE")
+            #print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform}% UNHABITABLE")
 
         # TO-DO: O que fazer quando habitável
 

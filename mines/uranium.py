@@ -20,6 +20,7 @@ class StoreHouse(Thread):
         self.constraint = constraint
 
     def print_store_house(self):
+        return
         print(f"🔨 - [{self.location}] - {self.unities} uranium unities are produced.")
 
     def produce(self):

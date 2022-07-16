@@ -1,8 +1,8 @@
+from resource import prlimit
 import globals
-from threading import Thread
+from threading import Thread, Lock
 from space.rocket import Rocket
 import random
-
 from space.launcher import Launcher
 
 class SpaceBase(Thread):
@@ -17,6 +17,10 @@ class SpaceBase(Thread):
         self.fuel = 0
         self.rockets = 0
         self.constraints = [uranium, fuel, rockets]
+        #nao pode mexer pipipopopo
+        self.base_launch_lock = Lock()
+        self.base_has_oil = False
+        self.base_has_uranium = False
 
     def print_space_base_info(self):
         print(f"🔭 - [{self.name}] → 🪨  {self.uranium}/{self.constraints[0]} URANIUM  ⛽ {self.fuel}/{self.constraints[1]}  🚀 {self.rockets}/{self.constraints[2]}")
@@ -24,56 +28,35 @@ class SpaceBase(Thread):
 
     def base_rocket_resources(self, rocket_name):
 
-        base_has_resource = True
-        
-        if (self.name != 'MOON'):
-            while (self.uranium < 35):
-                self.refuel_uranium()
-            while (self.fuel < 120):
-                self.refuel_oil()
-        else:
-            self.requeset_lion()
-
-
         match rocket_name:
             case 'DRAGON':
-                if self.uranium >= 35 and self.fuel >= 100:
-                    self.uranium = self.uranium - 35
-                    if self.name == 'ALCANTARA':
-                        self.fuel = self.fuel - 70
-                    elif self.name == 'MOON':
-                        self.fuel = self.fuel - 50
-                    else:
-                        self.fuel = self.fuel - 100
+                self.uranium = self.uranium - 35
+                if self.name == 'ALCANTARA':
+                    self.fuel = self.fuel - 70
+                elif self.name == 'MOON':
+                    self.fuel = self.fuel - 50
                 else:
-                    print("Falhou, sem recursos")
-                    base_has_resource = False
+                    self.fuel = self.fuel - 100
             case 'FALCON':
-                if self.uranium >= 35 and self.fuel >= 120:
-                    self.uranium = self.uranium - 35
-                    if self.name == 'ALCANTARA':
-                        self.fuel = self.fuel - 100
-                    elif self.name == 'MOON':
-                        self.fuel = self.fuel - 90
-                    else:
-                        self.fuel = self.fuel - 120
+                self.uranium = self.uranium - 35
+                if self.name == 'ALCANTARA':
+                    self.fuel = self.fuel - 100
+                elif self.name == 'MOON':
+                    self.fuel = self.fuel - 90
                 else:
-                    print("Falhou, sem recursos")
-                    base_has_resource = False
+                    self.fuel = self.fuel - 120
             case 'LION':
-                if self.uranium >= 35 and self.fuel >= 100:
-                    self.uranium = self.uranium - 35
-                    if self.name == 'ALCANTARA':
-                        self.fuel = self.fuel - 100
-                    else:
-                        self.fuel = self.fuel - 115
+                if self.name == 'ALCANTARA':
+                    self.fuel = self.fuel - 100
                 else:
-                    print("Falhou, sem recursos")
-                    base_has_resource = False
+                    self.fuel = self.fuel - 115
             case _:
                 print("Invalid rocket name")
 
-        return base_has_resource
+        if (self.fuel < 120):
+            self.base_has_oil = False
+        if (self.uranium < 35):
+            self.base_has_uranium = False
 
     def refuel_oil(self):
         mines = globals.get_mines_ref()
@@ -86,6 +69,8 @@ class SpaceBase(Thread):
             oil_mine.unities -= (self.constraints[1] - self.fuel)
             self.fuel += (self.constraints[1] - self.fuel)
         globals.release_oil_mine()
+        if (self.fuel >= 120):
+            self.base_has_oil = True
 
     def refuel_uranium(self):
         mines = globals.get_mines_ref()
@@ -98,34 +83,50 @@ class SpaceBase(Thread):
             uranium_mine.unities -= (self.constraints[0] - self.uranium)
             self.uranium += (self.constraints[0] - self.uranium)
         globals.release_uranium_mine() 
+        if (self.uranium >= 35):
+            self.base_has_uranium = True
 
+    def supply_lion(self, rocket):
+        while (self.fuel < 120):
+            self.refuel_oil()
+        while (self.uranium < 75):
+            self.refuel_uranium()
+        rocket.fuel_cargo += 120
+        rocket.uranium_cargo += 75
+        self.fuel -= 120
+        self.uranium -= 75
 
-    def requeset_lion():
-        bases = globals.get_bases_ref()
-        
     def get_random_planet(self):
-        index = random.randint(1, 4)
-        planets_dict = {1:'mars', 2:'io', 3:'ganimedes', 4:'europa'}
         planets = globals.get_planets_ref()
-        planet = planets[planets_dict[index]]
-        print(planet)
+        planet = random.choice(list(planets.values()))
         return planet
 
     def get_random_rocket(self):
         rockets = ['FALCON', 'DRAGON']
         index = random.randint(0,1)
         rocket_name = rockets[index]
+        if (self.name != 'MOON'):
+            globals.acquire_lion_production()
+            if (globals.get_lion_needed() and (not globals.get_lion_launched())):
+                rocket_name = 'LION'
+                globals.set_lion_launched(True)
+            globals.release_lion_production()
         rocket = Rocket(rocket_name)
-        print(rocket_name)
+        self.rockets += 1
         return rocket
         
     def rocket_launch(self):
-        planet = self.get_random_planet()
-        rocket = self.get_random_rocket()
-        base_has_resource = self.base_rocket_resources(rocket.name)
-        if base_has_resource:
+        with self.base_launch_lock:
+            planet = self.get_random_planet()
+            rocket = self.get_random_rocket()
+            self.base_rocket_resources(rocket.name)
+            if (rocket.name == 'LION'):
+                bases = globals.get_bases_ref()
+                self.supply_lion(rocket)
+                planet = bases['moon']
             launcher = Launcher(self, rocket, planet)
             launcher.start()
+            self.rockets -= 1
 
     def run(self):
         globals.acquire_print()
@@ -136,5 +137,13 @@ class SpaceBase(Thread):
             pass
 
         while(True):
-
-            self.rocket_launch()
+            if (self.base_has_oil and self.base_has_uranium):
+                self.rocket_launch()
+            else:
+                if (self.name != 'MOON'):
+                    if (not self.base_has_uranium):
+                        self.refuel_uranium()
+                    if (not self.base_has_oil):
+                        self.refuel_oil()
+                else:
+                    globals.set_lion_needed(True)

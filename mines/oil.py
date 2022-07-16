@@ -19,6 +19,7 @@ class Pipeline(Thread):
         self.constraint = constraint
 
     def print_pipeline(self):
+        return
         print(
             f"🔨 - [{self.location}] - {self.unities} oil unities are produced."
         )

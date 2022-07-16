@@ -1,4 +1,4 @@
-from threading import Lock
+from threading import Lock, Condition
 
 #  A total alteração deste arquivo é permitida.
 #  Lembre-se de que algumas variáveis globais são setadas no arquivo simulation.py
@@ -12,10 +12,38 @@ release_system = False
 mutex_print = Lock()
 uranium_mine_acess = Lock()
 oil_mine_acess = Lock()
+lion_lock = Lock()
 planets = {}
 bases = {}
 mines = {}
 simulation_time = None
+lion_needed = False
+lion_launched = False
+
+
+def set_lion_launched(valor):
+    global lion_launched
+    lion_launched = valor
+
+def get_lion_launched():
+    global lion_launched
+    return lion_launched
+
+def set_lion_needed(valor):
+    global lion_needed 
+    lion_needed = valor
+
+def get_lion_needed():
+    global lion_needed 
+    return lion_needed 
+
+def acquire_lion_production():
+    global lion_lock
+    lion_lock.acquire()
+
+def release_lion_production():
+    global lion_lock
+    lion_lock.release()
 
 def acquire_uranium_mine():
     global uranium_mine_acess
