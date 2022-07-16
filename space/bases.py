@@ -109,14 +109,15 @@ class SpaceBase(Thread):
         return planet
 
     def get_random_rocket():
-        rocket_draw = random.randint(0, 1)
-        rockets = ['DRAGON', 'FALCON']
-        rocket = Rocket(rockets[rocket_draw])
+        rockets = ['FALCON', 'DRAGON']
+        rocket_name = random.choice(rockets)
+        print(rocket_name)
+        rocket = Rocket(rocket_name)
         return rocket
         
     def rocket_launch(self):
-        planet = self.get_random_planet
-        rocket = self.get_random_rocket
+        planet = self.get_random_planet()
+        rocket = self.get_random_rocket()
         base_has_resource = self.base_rocket_resources(rocket.name)
         if base_has_resource:
             launcher = Launcher(self, rocket, planet)
