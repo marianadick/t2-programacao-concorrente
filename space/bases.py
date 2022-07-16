@@ -1,7 +1,7 @@
 import globals
 from threading import Thread
 from space.rocket import Rocket
-from random import random, choice
+import random
 
 from space.launcher import Launcher
 
@@ -103,16 +103,20 @@ class SpaceBase(Thread):
     def requeset_lion():
         bases = globals.get_bases_ref()
         
-    def get_random_planet():
-        planets = globals.get_planets_ref
-        planet = random.choice(list(planets.values()))
+    def get_random_planet(self):
+        index = random.randint(1, 4)
+        planets_dict = {1:'mars', 2:'io', 3:'ganimedes', 4:'europa'}
+        planets = globals.get_planets_ref()
+        planet = planets[planets_dict[index]]
+        print(planet)
         return planet
 
-    def get_random_rocket():
+    def get_random_rocket(self):
         rockets = ['FALCON', 'DRAGON']
-        rocket_name = random.choice(rockets)
-        print(rocket_name)
+        index = random.randint(0,1)
+        rocket_name = rockets[index]
         rocket = Rocket(rocket_name)
+        print(rocket_name)
         return rocket
         
     def rocket_launch(self):
