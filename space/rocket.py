@@ -16,10 +16,28 @@ class Rocket:
             
 
     def nuke(self, planet): # Permitida a alteração
-        self.damage()
-        print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on North Pole")
-        print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on South Pole")
-        pass
+        
+        damage = self.damage()
+        
+        # "Sorteia" o polo a ser foguetado
+        # 0: Norte 1: Sul
+        pole_draw = random.randint(0, 1)
+
+        # Bombardeio ao Polo Norte
+        if pole_draw == 0:
+            # Lock para que apenas uma bomba chegue ao polo por vez
+            planet.north_pole_hit_lock.acquire()
+            print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on North Pole")
+            planet.nuke_detected(damage)
+            planet.north_pole_hit_lock.release()
+            
+        # Bombardeio ao Polo Sul
+        else:
+            # Lock para que apenas uma bomba chegue ao polo por vez
+            planet.south_pole_hit_lock.acquire()
+            print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on South Pole")
+            planet.nuke_detected(damage)
+            planet.south_pole_hit_lock.release()
     
     def voyage(self, planet): # Permitida a alteração (com ressalvas)
 
