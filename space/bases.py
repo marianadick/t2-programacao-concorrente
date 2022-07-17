@@ -17,10 +17,7 @@ class SpaceBase(Thread):
         self.fuel = 0
         self.rockets = 0
         self.constraints = [uranium, fuel, rockets]
-        #nao pode mexer pipipopopo
-        self.base_launch_lock = Lock()
-        self.base_has_oil = False
-        self.base_has_uranium = False
+
 
     def print_space_base_info(self):
         print(f"🔭 - [{self.name}] → 🪨  {self.uranium}/{self.constraints[0]} URANIUM  ⛽ {self.fuel}/{self.constraints[1]}  🚀 {self.rockets}/{self.constraints[2]}")
@@ -53,10 +50,15 @@ class SpaceBase(Thread):
             case _:
                 print("Invalid rocket name")
 
+        #Pega o dicionario global de recursos, vai no dessa base usando o nome como index
+        #o value da key é uma lista [bool, bool] sendo o primeiro referente a uranio e o segundo a combustivel
+        base_has_resources = globals.get_bases_has_resources()
+        base_has_resources = base_has_resources[self.name]
         if (self.fuel < 120):
-            self.base_has_oil = False
+            base_has_resources[1] = False
         if (self.uranium < 35):
-            self.base_has_uranium = False
+            base_has_resources[0]  = False
+
 
     def refuel_oil(self):
         mines = globals.get_mines_ref()
@@ -70,7 +72,12 @@ class SpaceBase(Thread):
             self.fuel += (self.constraints[1] - self.fuel)
         globals.release_oil_mine()
         if (self.fuel >= 120):
-            self.base_has_oil = True
+            #Pega o dicionario global de recursos, vai no dessa base usando o nome como index
+            #o value da key é uma lista [bool, bool] sendo o primeiro referente a uranio e o segundo a combustivel
+            base_resources = globals.get_bases_has_resources()
+            base_has_resources = base_resources[self.name]
+            base_has_resources[1] = True
+
 
     def refuel_uranium(self):
         mines = globals.get_mines_ref()
@@ -84,7 +91,12 @@ class SpaceBase(Thread):
             self.uranium += (self.constraints[0] - self.uranium)
         globals.release_uranium_mine() 
         if (self.uranium >= 35):
-            self.base_has_uranium = True
+            #Pega o dicionario global de recursos, vai no dessa base usando o nome como index
+            #o value da key é uma lista [bool, bool] sendo o primeiro referente a uranio e o segundo a combustivel
+            base_resources = globals.get_bases_has_resources()
+            base_has_resources = base_resources[self.name]
+            base_has_resources[0] = True
+
 
     def supply_lion(self, rocket, moon):
         oil_needed = min((moon.constraints[1] - moon.fuel), 120)
@@ -98,10 +110,12 @@ class SpaceBase(Thread):
         self.fuel -= oil_needed
         self.uranium -= uranium_needed
 
+
     def get_random_planet(self):
         planets = globals.get_planets_ref()
         planet = random.choice(list(planets.values()))
         return planet
+
 
     def get_random_rocket(self):
         rockets = ['FALCON', 'DRAGON']
@@ -116,9 +130,13 @@ class SpaceBase(Thread):
         rocket = Rocket(rocket_name)
         self.rockets += 1
         return rocket
-        
+
+
     def rocket_launch(self):
-        with self.base_launch_lock:
+        #Pega o dicionario global de locks, usa o nome como index, retorna uma lock
+        base_launch_lock = globals.get_bases_locks()
+        base_launch_lock = base_launch_lock[self.name][0]
+        with base_launch_lock:
             planet = self.get_random_planet()
             rocket = self.get_random_rocket()
             self.base_rocket_resources(rocket.name)
@@ -130,6 +148,7 @@ class SpaceBase(Thread):
             launcher.start()
             self.rockets -= 1
 
+
     def run(self):
         globals.acquire_print()
         self.print_space_base_info()
@@ -139,13 +158,17 @@ class SpaceBase(Thread):
             pass
 
         while(True):
-            if (self.base_has_oil and self.base_has_uranium):
+            base_resources = globals.get_bases_has_resources()
+            base_resources = base_resources[self.name]
+            base_has_oil = base_resources[1]
+            base_has_uranium = base_resources[0]
+            if (base_has_oil and base_has_uranium):
                 self.rocket_launch()
             else:
                 if (self.name != 'MOON'):
-                    if (not self.base_has_uranium):
+                    if (not base_has_uranium):
                         self.refuel_uranium()
-                    if (not self.base_has_oil):
+                    if (not base_has_oil):
                         self.refuel_oil()
                 else:
                     globals.set_lion_needed(True)

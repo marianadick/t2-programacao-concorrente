@@ -19,7 +19,39 @@ mines = {}
 simulation_time = None
 lion_needed = False
 lion_launched = False
+"""
+base_launch_lock = Lock()
+base_has_oil = False
+base_has_uranium = False
+"""
 
+alcantara_lock = Lock()
+canaveral_lock = Lock()
+moscow_lock = Lock()
+moon_lock = Lock()
+bases_locks = {
+    'ALCANTARA': [alcantara_lock],
+    'CANAVERAL CAPE': [canaveral_lock],
+    'MOSCOW': [moscow_lock],
+    'MOON': [moon_lock]
+}
+
+# [False, False] = o primeiro referente a uranio e o segundo a combustivel
+bases_has_resources = {
+    'ALCANTARA': [False, False],
+    'CANAVERAL CAPE': [False, False],
+    'MOSCOW': [False, False],
+    'MOON': [False, False]
+}
+
+
+def get_bases_locks():
+    global bases_locks
+    return bases_locks
+
+def get_bases_has_resources():
+    global bases_has_resources
+    return bases_has_resources
 
 def set_lion_launched(valor):
     global lion_launched

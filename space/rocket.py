@@ -55,16 +55,17 @@ class Rocket:
             if (failure):
                 globals.set_lion_launched(False)
             else:
+                #visto que é o lion sei que o 'planet' em questão é a lua
+                moon_has_resources = globals.get_bases_has_resources()
+                moon_has_resources = moon_has_resources['MOON']
                 planet.fuel += self.fuel_cargo
                 planet.uranium += self.uranium_cargo
                 if (planet.uranium >= 35):
-                    planet.base_has_uranium = True
+                    moon_has_resources[1] = True
                 if (planet.fuel >= 90):
-                    planet.base_has_oil = True
+                    moon_has_resources[0] = True
                 globals.set_lion_launched(False)
                 globals.set_lion_needed(False)
-                print(planet.fuel)
-                print(planet.uranium)
         elif (not failure):
             self.nuke(planet)
 
@@ -98,6 +99,8 @@ class Rocket:
 
     def successfull_launch(self, base):
         if random.random() <= 0.1:
+            if (self.name == 'LION'):
+                globals.set_lion_launched(False)
             print(f"[LAUNCH FAILED] - {self.name} ROCKET id:{self.id} on {base.name}")
             return False
         return True
