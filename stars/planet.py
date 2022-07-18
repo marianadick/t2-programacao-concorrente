@@ -10,10 +10,6 @@ class Planet(Thread):
         Thread.__init__(self)
         self.terraform = terraform
         self.name = name
-        # Talvez isso tenha que mudar de lugar! Discutir com Felipe
-        self.terraform_lock = Lock()
-        self.north_pole_hit_lock = Lock()
-        self.south_pole_hit_lock = Lock()
         
 
     def nuke_detected(self):
@@ -25,14 +21,19 @@ class Planet(Thread):
             if self.terraform < 0:
                 self.terraform = 0
 
-            #print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform}% UNHABITABLE")
+            print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform}% UNHABITABLE")
 
         # TO-DO: O que fazer quando habitável
 
     def print_planet_info(self):
+        planets_terraform_locks = globals.get_planets_terraform_locks()
+        terraform_lock = planets_terraform_locks[self.name][0]
+        terraform_lock.acquire()
         print(f"🪐 - [{self.name}] → {self.terraform}% UNINHABITABLE")
+        terraform_lock.release()
 
     def run(self):
+        
         globals.acquire_print()
         self.print_planet_info()
         globals.release_print()
@@ -42,3 +43,7 @@ class Planet(Thread):
 
         while(True):
             self.nuke_detected()
+            name = self.name.lower()
+            planets = globals.get_planets_ref()
+            del planets[name]
+            break

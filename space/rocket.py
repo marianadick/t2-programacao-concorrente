@@ -19,6 +19,12 @@ class Rocket:
         
         damage = self.damage()
         
+        planets_terraform_locks = globals.get_planets_terraform_locks()
+        terraform_lock = planets_terraform_locks[planet.name][0]
+        planets_pole_locks = globals.get_planets_pole_locks()
+        south_pole_lock = planets_pole_locks[planet.name][1]
+        north_pole_lock = planets_pole_locks[planet.name][0]
+  
         # "Sorteia" o polo a ser foguetado
         # 0: Norte 1: Sul
         pole_draw = random.randint(0, 1)
@@ -26,22 +32,22 @@ class Rocket:
         # Bombardeio ao Polo Norte
         if pole_draw == 0:
             # Lock para que apenas uma bomba chegue ao polo por vez
-            planet.north_pole_hit_lock.acquire()
+            north_pole_lock.acquire()
             print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on North Pole")
-            planet.terraform_lock.acquire()
+            terraform_lock.acquire()
             planet.terraform -= damage
-            planet.terraform_lock.release()
-            planet.north_pole_hit_lock.release()
+            terraform_lock.release()
+            north_pole_lock.release()
             
         # Bombardeio ao Polo Sul
         else:
             # Lock para que apenas uma bomba chegue ao polo por vez
-            planet.south_pole_hit_lock.acquire()
+            south_pole_lock.acquire()
             print(f"[EXPLOSION] - The {self.name} ROCKET reached the planet {planet.name} on South Pole")
-            planet.terraform_lock.acquire()
+            terraform_lock.acquire()
             planet.terraform -= damage
-            planet.terraform_lock.release()
-            planet.south_pole_hit_lock.release()
+            terraform_lock.release()
+            south_pole_lock.release()
 
     def voyage(self, planet): # Permitida a alteração (com ressalvas)
 
@@ -106,7 +112,7 @@ class Rocket:
         return True
     
     def damage(self):
-        return 10
+        return 100
         return random.random()
 
     def launch(self, base, planet):

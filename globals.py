@@ -19,16 +19,27 @@ mines = {}
 simulation_time = None
 lion_needed = False
 lion_launched = False
-"""
-base_launch_lock = Lock()
-base_has_oil = False
-base_has_uranium = False
-"""
 
 alcantara_lock = Lock()
 canaveral_lock = Lock()
 moscow_lock = Lock()
 moon_lock = Lock()
+
+mars_terraform_lock = Lock()
+io_terraform_lock = Lock()
+ganimedes_terraform_lock = Lock()
+europa_terraform_lock = Lock()
+
+mars_north_pole_lock = Lock()
+io_north_pole_lock = Lock()
+ganimedes_north_pole_lock = Lock()
+europa_north_pole_lock = Lock()
+
+mars_south_pole_lock = Lock()
+io_south_pole_lock = Lock()
+ganimedes_south_pole_lock = Lock()
+europa_south_pole_lock = Lock()
+
 bases_locks = {
     'ALCANTARA': [alcantara_lock],
     'CANAVERAL CAPE': [canaveral_lock],
@@ -44,10 +55,42 @@ bases_has_resources = {
     'MOON': [False, False]
 }
 
+planets_terraform_locks = {
+    'MARS': [mars_terraform_lock],
+    'IO': [io_terraform_lock],
+    'GANIMEDES': [ganimedes_terraform_lock],
+    'EUROPA': [europa_terraform_lock]
+}
+
+planets_pole_locks = {
+    'MARS': [mars_north_pole_lock, mars_south_pole_lock],
+    'IO': [io_north_pole_lock, io_south_pole_lock],
+    'GANIMEDES': [ganimedes_north_pole_lock, ganimedes_south_pole_lock],
+    'EUROPA': [europa_north_pole_lock, europa_south_pole_lock]
+}
+
+terraform_completed = {
+    'MARS': [False],
+    'IO': [False],
+    'GANIMEDES': [False],
+    'EUROPA': [False],
+}        
 
 def get_bases_locks():
     global bases_locks
     return bases_locks
+
+def get_terraform_completed():
+    global terraform_completed
+    return terraform_completed
+
+def get_planets_terraform_locks():
+    global planets_terraform_locks
+    return planets_terraform_locks
+
+def get_planets_pole_locks():
+    global planets_pole_locks
+    return planets_pole_locks
 
 def get_bases_has_resources():
     global bases_has_resources
