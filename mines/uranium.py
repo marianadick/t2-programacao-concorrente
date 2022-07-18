@@ -38,5 +38,5 @@ class StoreHouse(Thread):
         while(globals.get_release_system() == False):
             pass
 
-        while(not globals.get_end_project()):
+        while(not globals.get_mines_stop()):
             self.produce()

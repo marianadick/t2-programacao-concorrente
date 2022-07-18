@@ -113,8 +113,9 @@ class SpaceBase(Thread):
 
     def get_random_planet(self):
         planets = globals.get_planets_ref()
-        planet = random.choice(list(planets.values()))
-        return planet
+        if (len(planets) >= 1):
+            planet = random.choice(list(planets.values()))
+            return planet
 
 
     def get_random_rocket(self):
@@ -157,22 +158,19 @@ class SpaceBase(Thread):
         while(globals.get_release_system() == False):
             pass
 
-        while(True):
-            globals.check_end_project()
-            if (globals.get_end_project()):
-                break
+        while(not globals.get_end_project()):
+            base_resources = globals.get_bases_has_resources()
+            base_resources = base_resources[self.name]
+            base_has_oil = base_resources[1]
+            base_has_uranium = base_resources[0]
+            if (base_has_oil and base_has_uranium):
+                self.rocket_launch()
             else:
-                base_resources = globals.get_bases_has_resources()
-                base_resources = base_resources[self.name]
-                base_has_oil = base_resources[1]
-                base_has_uranium = base_resources[0]
-                if (base_has_oil and base_has_uranium):
-                    self.rocket_launch()
+                if (self.name != 'MOON'):
+                    if (not base_has_uranium):
+                        self.refuel_uranium()
+                    if (not base_has_oil):
+                        self.refuel_oil()
                 else:
-                    if (self.name != 'MOON'):
-                        if (not base_has_uranium):
-                            self.refuel_uranium()
-                        if (not base_has_oil):
-                            self.refuel_oil()
-                    else:
-                        globals.set_lion_needed(True)
+                    globals.set_lion_needed(True)
+            globals.check_end_project()

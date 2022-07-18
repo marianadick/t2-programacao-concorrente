@@ -39,10 +39,14 @@ mars_south_pole_lock = Lock()
 io_south_pole_lock = Lock()
 ganimedes_south_pole_lock = Lock()
 europa_south_pole_lock = Lock()
-
 satelite_lock = Lock()
 end_project = False
 count = 0
+mines_stop = False
+
+def get_mines_stop():
+    global mines_stop
+    return mines_stop
 
 bases_locks = {
     'ALCANTARA': [alcantara_lock],
@@ -85,6 +89,7 @@ def check_end_project():
     global terraform_completed
     global end_project
     global count
+    global mines_stop
     with satelite_lock:
         for x in terraform_completed.values():
             if (x[0] == False):
@@ -97,6 +102,8 @@ def check_end_project():
             print(f'Operação concluida com sucesso, Duração total: {simulation_time.current_time} anos')
             print(f'Encerrando foguetes restantes...')
             print('')
+            mines_stop = True
+
 
 def get_end_project():
     global end_project
