@@ -31,7 +31,7 @@ class Planet(Thread):
                 planets = globals.get_planets_ref()
                 del planets[name]
 
-            print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform}% UNHABITABLE")
+            print(f"[NUKE DETECTION] - The planet {self.name} was bombed. {self.terraform:.2f}% UNHABITABLE")
 
 
     def print_planet_info(self):
