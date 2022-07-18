@@ -40,6 +40,10 @@ io_south_pole_lock = Lock()
 ganimedes_south_pole_lock = Lock()
 europa_south_pole_lock = Lock()
 
+satelite_lock = Lock()
+end_project = False
+count = 0
+
 bases_locks = {
     'ALCANTARA': [alcantara_lock],
     'CANAVERAL CAPE': [canaveral_lock],
@@ -75,6 +79,28 @@ terraform_completed = {
     'GANIMEDES': [False],
     'EUROPA': [False],
 }        
+
+def check_end_project():
+    global satelite_lock
+    global terraform_completed
+    global end_project
+    global count
+    with satelite_lock:
+        for x in terraform_completed.values():
+            if (x[0] == False):
+                return
+        end_project = True
+        count += 1
+        #apenas uma base precisa anunciar ao mundo o termino da operação
+        if count == 4:
+            print('')
+            print(f'Operação concluida com sucesso, Duração total: {simulation_time.current_time} anos')
+            print(f'Encerrando foguetes restantes...')
+            print('')
+
+def get_end_project():
+    global end_project
+    return end_project
 
 def get_bases_locks():
     global bases_locks

@@ -158,17 +158,21 @@ class SpaceBase(Thread):
             pass
 
         while(True):
-            base_resources = globals.get_bases_has_resources()
-            base_resources = base_resources[self.name]
-            base_has_oil = base_resources[1]
-            base_has_uranium = base_resources[0]
-            if (base_has_oil and base_has_uranium):
-                self.rocket_launch()
+            globals.check_end_project()
+            if (globals.get_end_project()):
+                break
             else:
-                if (self.name != 'MOON'):
-                    if (not base_has_uranium):
-                        self.refuel_uranium()
-                    if (not base_has_oil):
-                        self.refuel_oil()
+                base_resources = globals.get_bases_has_resources()
+                base_resources = base_resources[self.name]
+                base_has_oil = base_resources[1]
+                base_has_uranium = base_resources[0]
+                if (base_has_oil and base_has_uranium):
+                    self.rocket_launch()
                 else:
-                    globals.set_lion_needed(True)
+                    if (self.name != 'MOON'):
+                        if (not base_has_uranium):
+                            self.refuel_uranium()
+                        if (not base_has_oil):
+                            self.refuel_oil()
+                    else:
+                        globals.set_lion_needed(True)
