@@ -44,10 +44,12 @@ end_project = False
 count = 0
 mines_stop = False
 
+# Sincronização para finalizar as minas
 def get_mines_stop():
     global mines_stop
     return mines_stop
 
+# Locks das plataformas de lançamento das bases
 bases_locks = {
     'ALCANTARA': [alcantara_lock],
     'CANAVERAL CAPE': [canaveral_lock],
@@ -55,6 +57,7 @@ bases_locks = {
     'MOON': [moon_lock]
 }
 
+# Booleanos de recursos das bases
 # [False, False] = o primeiro referente a uranio e o segundo a combustivel
 bases_has_resources = {
     'ALCANTARA': [False, False],
@@ -63,6 +66,7 @@ bases_has_resources = {
     'MOON': [False, False]
 }
 
+# Locks de acesso as informações de terraformação dos planetas
 planets_terraform_locks = {
     'MARS': [mars_terraform_lock],
     'IO': [io_terraform_lock],
@@ -70,6 +74,7 @@ planets_terraform_locks = {
     'EUROPA': [europa_terraform_lock]
 }
 
+# Locks dos polos do planeta, impedem que mais de uma bomba exploda no mesmo polo
 planets_pole_locks = {
     'MARS': [mars_north_pole_lock, mars_south_pole_lock],
     'IO': [io_north_pole_lock, io_south_pole_lock],
@@ -77,6 +82,7 @@ planets_pole_locks = {
     'EUROPA': [europa_north_pole_lock, europa_south_pole_lock]
 }
 
+# Variáveis que informam se a terraformação está completa
 terraform_completed = {
     'MARS': [False],
     'IO': [False],
@@ -84,26 +90,31 @@ terraform_completed = {
     'EUROPA': [False],
 }        
 
+# Função que checa se o projeto finalizou
 def check_end_project():
     global satelite_lock
     global terraform_completed
     global end_project
     global count
     global mines_stop
+    # Apenas uma base acessa os satélites por vez
     with satelite_lock:
+        # percorre o dict de terraformação
         for x in terraform_completed.values():
+            # Caso algum não tenha terminado, nada acontece
             if (x[0] == False):
                 return
+        # caso contrário, encerra o projeto
         end_project = True
         count += 1
-        #apenas uma base precisa anunciar ao mundo o termino da operação
+        # apenas uma base precisa anunciar ao mundo o termino da operação
         if count == 4:
             print('')
             print(f'Operação concluida com sucesso, Duração total: {simulation_time.current_time} anos')
             print(f'Encerrando foguetes restantes...')
             print('')
+            # Após o encerramento das bases, as minas podem encerrar
             mines_stop = True
-
 
 def get_end_project():
     global end_project

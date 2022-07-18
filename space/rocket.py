@@ -19,6 +19,7 @@ class Rocket:
         
         damage = self.damage()
         
+        # Pega os semáforos necessários para realizar o bombardeio
         planets_terraform_locks = globals.get_planets_terraform_locks()
         terraform_lock = planets_terraform_locks[planet.name][0]
         planets_pole_locks = globals.get_planets_pole_locks()
@@ -49,31 +50,35 @@ class Rocket:
             terraform_lock.release()
             south_pole_lock.release()
 
-    def voyage(self, planet): # Permitida a alteração (com ressalvas)
 
-        # Essa chamada de código (do_we_have_a_problem e simulation_time_voyage) não pode ser retirada.
-        # Você pode inserir código antes ou depois dela e deve
-        # usar essa função.
+    def voyage(self, planet):
         if (not globals.get_end_project()):
+            # O tempo de viagem do Lion é desconsiderado
             if (self.name != 'LION'):
                 self.simulation_time_voyage(planet)
             failure =  self.do_we_have_a_problem()
+            # Caso especial de voyage para o Lion
             if (self.name == 'LION'):
+                # Se falhar, define a variável de lançamento do Lion como false novamente
                 if (failure):
                     globals.set_lion_launched(False)
                 else:
-                    #visto que é o lion sei que o 'planet' em questão é a lua
+                    # visto que é o lion sei que o 'planet' em questão é a lua
                     moon_has_resources = globals.get_bases_has_resources()
                     moon_has_resources = moon_has_resources['MOON']
+                    # Passa os recursos do Lion para a Lua
                     planet.fuel += self.fuel_cargo
                     planet.uranium += self.uranium_cargo
+                    # Caso haja os recursos necessários, retoma a produção
                     if (planet.uranium >= 35):
                         moon_has_resources[1] = True
                     if (planet.fuel >= 90):
                         moon_has_resources[0] = True
                     globals.set_lion_launched(False)
                     globals.set_lion_needed(False)
+            # Se não for o Lion, nuka o planeta
             elif (not failure):
+                # Verifica para ter certeza que não vamos matar ninguém
                 if (planet.terraform > 0):
                     self.nuke(planet)
 
@@ -114,7 +119,6 @@ class Rocket:
         return True
     
     def damage(self):
-        return 25
         return random.random()
 
     def launch(self, base, planet):
